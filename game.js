@@ -2,114 +2,134 @@ class intro extends Phaser.Scene {
     constructor() {
       super('intro');
     }
+
+    preload() {
+        this.load.image("rolypoly", "roly poly.png")
+    }
   
     create() {
-        this.cameras.main.setBackgroundColor('#00000');
+        this.cameras.main.setBackgroundColor('#32bf22');
     
-        const title = this.add.text(0, 0, '', {
-            font: 'bold 100px Arial Black',
-            fill: '#ffffff',
-        });
-        title.setOrigin(0.5, 1.2);
-        title.setPosition(this.cameras.main.width / 2, this.cameras.main.height / 2);
-    
-        const subtitle = this.add.text(0, 0, '', {
+        const title = this.add.text(0, 0, 'Roly Poly: To the End', {
             font: 'bold 50px Arial Black',
-            fill: '#ffffff',
+            fill: '#102f9e',
         });
-        subtitle.setOrigin(0.5, 0.5);
-        subtitle.setPosition(this.cameras.main.width / 2, this.cameras.main.height / 2);
-    
-        const texts = ["Left and right arrowkeys to move", "Up arrowkey to jump"];
-        const run = ["Run."];
-        let currentIndex = -1;
-    
-        const showNextText = () => {
-            currentIndex++;
-            if (currentIndex === texts.length) {
-                return; // Break out of the function when all texts have been shown
-            }
-    
-            // Show the next text
-            const currentText = texts[currentIndex];
-            title.setText(currentText);
-            subtitle.setText('');
-    
-            // Fade in the current text
+        title.setOrigin(0.5, 0.5);
+        title.setPosition(this.cameras.main.width / 2, this.cameras.main.height / 2);
+
+        this.rolypoly = this.add.sprite(this.cameras.main.width / 3, this.cameras.main.height / 4, "rolypoly")
+        .setScale(0.5)
+
+        this.tweens.add({
+            targets: this.rolypoly,
+            angle: 360,
+            repeat: -1,
+            duration: 500,
+            // ease: 'Power1',
+        });
+        this.tweens.add({
+            targets: this.rolypoly,
+            scale: {from: 0.2, to: 1},
+            yoyo: true,
+            duration: 500,
+            repeat: -1
+        })
+
+        this.tweens.add({
+            targets: title,
+            scale: 1,
+            duration: 200,
+            ease: 'Power1',
+        });
+        
+        title.setInteractive();
+        title.on('pointerover', () => {
+            this.tweens.add({
+            targets: title,
+            scale: 1.2,
+            duration: 200,
+            ease: 'Power1',
+            });
+        }); //hover over effect
+
+        title.on('pointerout', () => {
+            this.tweens.add({
+            targets: title,
+            scale: 1,
+            duration: 200,
+            ease: 'Power1',
+            });
+        }); //hover over effect end
+
+        title.on('pointerdown', () => {
             this.tweens.add({
                 targets: title,
-                alpha: 1,
-                duration: 3000,
+                scaleX: 0.9,
+                scaleY: 0.9,
+                duration: 50,
+                yoyo: true,
                 ease: 'Power1',
                 onComplete: () => {
-                    // Fade out the current text
-                    this.tweens.add({
-                        targets: title,
-                        alpha: 0,
-                        duration: 3000,
-                        ease: 'Power1',
-                        onComplete: showNextText,
-                    });
-                }
+                    this.cameras.main.fade(1000, 0, 0, 0);
+                    this.time.delayedCall(1000, () => this.scene.start('end'));
+                },
             });
-        }
-        this.time.delayedCall(12000, () => {
-            title.setText(run[0]);
-            // Show the last text ("Run.")
-            this.tweens.add({
-                targets: title,
-                alpha: 1,
-                duration: 3000,
-                ease: 'Power1',
-            });
-
-            title.setInteractive();
-            title.on('pointerover', () => {
-                this.tweens.add({
-                targets: title,
-                scale: 1.2,
-                duration: 200,
-                ease: 'Power1',
-                });
-            });
-
-            title.on('pointerout', () => {
-                this.tweens.add({
-                targets: title,
-                scale: 1,
-                duration: 200,
-                ease: 'Power1',
-                });
-            });
-
-            title.on('pointerdown', () => {
-                this.tweens.add({
-                    targets: title,
-                    scaleX: 0.9,
-                    scaleY: 0.9,
-                    duration: 50,
-                    yoyo: true,
-                    ease: 'Power1',
-                    onComplete: () => {
-                        this.cameras.main.fade(1000, 0, 0, 0);
-                        this.time.delayedCall(1000, () => this.scene.start('start'));
-                    },
-                });
-            });
-    });
-
-    showNextText();
+        }); //transition to end on click
     }
 }
 
-class end extends Phaser.Scene {
+class end extends Phaser.Scene { //victory screen
     constructor() {
         super('end');
     }
+
+    preload() {
+        this.load.image("rolypoly", "roly poly.png")
+    }
+
     create() {
-        this.add.text(50, 50, "You Win!").setFontSize(50);
-        this.add.text(50, 1000, "Play Again?").setFontSize(100);
-        this.input.on('pointerdown', () => this.scene.start('intro'));
+        this.cameras.main.setBackgroundColor('#32bf22');
+
+        this.rolypoly = this.add.sprite(this.cameras.main.width / 2, this.cameras.main.height / 2, "rolypoly")
+
+        const win = this.add.text(100, 50, "You Win!").setFontSize(50);
+        win.setOrigin(0.3, 0.7);
+        
+        const reset = this.add.text(1500, 1000, "Play Again?").setFontSize(100)
+        reset.setOrigin(0.7, 0.7)
+        reset.setInteractive()
+        reset.on('pointerover', () => {
+            this.tweens.add({
+            targets: reset,
+            scale: 1.2,
+            duration: 200,
+            ease: 'Power1',
+            });
+        }) //hover over effect
+
+        reset.on('pointerout', () => {
+            this.tweens.add({
+            targets: reset,
+            scale: 1,
+            duration: 200,
+            ease: 'Power1',
+            });
+        }) //hover over effect end
+
+        reset.on('pointerdown', () => {
+            this.tweens.add({
+                targets: reset,
+                scaleX: 0.9,
+                scaleY: 0.9,
+                duration: 50,
+                yoyo: true,
+                ease: 'Power1',
+                onComplete: () => {
+                    this.cameras.main.fade(1000, 0, 0, 0);
+                    this.time.delayedCall(1000, () => this.scene.start('intro'));
+                },
+            });
+        }); //transition to end on click
     }
 }
 
@@ -120,15 +140,11 @@ const game = new Phaser.Game({
         width: 1920,
         height: 1080
     },
-    physics: {
-        default: 'arcade',
-        arcade: {
-            gravity: { y: 300 },
-            debug: false
-        }
-    },
-    scene: [intro, start, start2, start3, sum, end],
-    title: "Runner",
-    background: "#00000",
+    scene: [
+        intro,
+        end
+    ],
+    title: "rolypoly",
+    background: "#00000", 
 });
 
